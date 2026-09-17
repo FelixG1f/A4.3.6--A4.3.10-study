@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A3.4.6 - 10 notes and quizzes</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Logic Data (Load app.js FIRST) -->
+  <script src="app.js"></script>
+  
+  <!-- Alpine.js CDN for dynamic reactivity -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Space Grotesk Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: #3B60C5; /* Cobalt blue background for footer reveal */
+    }
+  </style>
+</head>
+<body class="selection:bg-[#3B60C5] selection:text-[#FDF2DE]">
+
+  <!-- MAIN SLIDING CONTAINER -->
+  <main class="bg-[#FDF2DE] text-[#3B60C5] relative z-10 rounded-b-[2.5rem] md:rounded-b-[4rem] pb-24 mb-[70vh] shadow-2xl">
+    
+    <!-- NAVIGATION -->
+    <nav class="sticky top-0 w-full p-6 flex justify-between items-center z-50 backdrop-blur-md bg-[#FDF2DE]/80 border-b border-[#3B60C5]/10">
+      <div class="text-2xl font-bold tracking-tighter uppercase"> Module</div>
+      <a href="#quiz" class="border-2 border-[#3B60C5] px-6 py-2 rounded-full font-bold hover:bg-[#3B60C5] hover:text-[#FDF2DE] transition-colors">
+        Jump to Quiz
+      </a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="min-h-[70vh] flex flex-col justify-center items-center px-6 text-center pt-12">
+      <h1 class="text-[11vw] leading-none font-bold tracking-tighter uppercase mb-6">
+        summary <br/> Notes.
+      </h1>
+      <p class="text-xl md:text-2xl max-w-2xl font-medium opacity-80">
+        Made by Felix Graf.
+      </p>
+    </section>
+
+    <!-- SLIDES SECTION (Driven by slidesModule in app.js) -->
+    <section class="py-16 px-6 md:px-12 max-w-6xl mx-auto" x-data="slidesModule">
+      <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+        <h2 class="text-4xl md:text-6xl font-bold tracking-tighter uppercase">01 / Slide Deck</h2>
+        <div class="flex gap-4 mt-6 md:mt-0">
+          <button 
+            @click="prev()" 
+            :disabled="active === 0"
+            class="px-6 py-3 border-2 border-[#3B60C5] rounded-full font-bold hover:bg-[#3B60C5] hover:text-[#FDF2DE] transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#3B60C5]">
+            ← Prev
+          </button>
+          <button 
+            @click="next()" 
+            :disabled="active === slides.length - 1"
+            class="px-6 py-3 border-2 border-[#3B60C5] rounded-full font-bold hover:bg-[#3B60C5] hover:text-[#FDF2DE] transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#3B60C5]">
+            Next →
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Slide Display -->
+      <div class="bg-[#3B60C5] text-[#FDF2DE] rounded-[2rem] p-8 md:p-14 min-h-[380px] flex flex-col justify-between transition-all duration-300">
+        <div>
+          <span class="text-xl opacity-60 font-medium mb-2 block" x-text="'Chapter ' + slides[active].id"></span>
+          <h3 class="text-3xl md:text-5xl font-bold tracking-tight mb-6" x-text="slides[active].title"></h3>
+          <p class="text-xl md:text-2xl max-w-2xl opacity-90 leading-relaxed" x-text="slides[active].content"></p>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full h-1 bg-[#FDF2DE]/30 rounded-full overflow-hidden mt-8">
+          <div class="h-full bg-[#FDF2DE] transition-all duration-300" :style="'width: ' + (((active + 1) / slides.length) * 100) + '%'"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ SECTION (Driven by quizModule in app.js) -->
+    <section id="quiz" class="py-16 px-6 md:px-12 max-w-6xl mx-auto" x-data="quizModule">
+      <h2 class="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-12">02 / test</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <template x-for="(q, qIdx) in quizzes" :key="qIdx">
+          <div class="border-2 border-[#3B60C5] rounded-[2rem] p-8 flex flex-col justify-between">
+            <div>
+              <span class="text-lg font-bold opacity-40 mb-2 block" x-text="'Question ' + q.id"></span>
+              <h3 class="text-2xl font-bold tracking-tight mb-6" x-text="q.question"></h3>
+            </div>
+            <div class="space-y-3">
+              <template x-for="(opt, optIdx) in q.options" :key="optIdx">
+                <button 
+                  @click="selectOption(qIdx, optIdx)"
+                  :disabled="q.selected !== null"
+                  :class="{
+                    'bg-[#3B60C5] text-[#FDF2DE]': q.selected !== null && optIdx === q.answer,
+                    'line-through opacity-50': q.selected !== null && q.selected === optIdx && optIdx !== q.answer,
+                    'opacity-30': q.selected !== null && q.selected !== optIdx && optIdx !== q.answer,
+                    'hover:bg-[#3B60C5] hover:text-[#FDF2DE]': q.selected === null
+                  }"
+                  class="w-full text-left p-4 rounded-xl border-2 border-[#3B60C5] font-bold text-lg transition-all flex justify-between items-center">
+                  <span x-text="opt"></span>
+                  <span x-show="q.selected !== null && optIdx === q.answer">✓</span>
+                  <span x-show="q.selected !== null && q.selected === optIdx && optIdx !== q.answer">✕</span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- OVERLAPPING FOOTER -->
+  <footer class="fixed bottom-0 left-0 w-full h-[70vh] flex flex-col items-center justify-center bg-[#3B60C5] text-[#FDF2DE] z-0 px-6 text-center">
+    <h2 class="text-[12vw] leading-none font-bold tracking-tighter uppercase">
+      Great Job.
+    </h2>
+    <p class="text-xl md:text-2xl font-medium opacity-80 mt-6 max-w-md">
+      You've reached the end of the module.
+    </p>
+  </footer>
+
+</body>
+</html>
